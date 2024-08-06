@@ -245,11 +245,13 @@ def Send_Data():
         arduino.flush()
     else: draw_text('ARDUINO NOT FOUND', font, pygame.Color('red'), SCREEN_WIDTH * 0.37, SCREEN_HEIGHT * 0.95)
 
-
+#this
+setup = 1
 
 running = True
 while running:
 
+    #this is experimental, use "setup_check" at your own risk and if you do so, comment the "setup = 1" line above.
     #setup_check()
 
     clock.tick(FPS)
