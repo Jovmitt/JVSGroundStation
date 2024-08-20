@@ -3,6 +3,22 @@ import pygame
 import serial
 import time
 
+#mixer & etc
+#craft_type = "V_Tail" #this doesnt matter right now
+camera_control_enabled = False #enable if you use a panning servo for camera control
+Cam_Vel = -50 #-500 to 500
+
+# modes
+arm = 1100
+failsafe = 1200
+# = 1300
+# = 1400
+manual = 1500
+auto_trim = 1600
+auto_launch = 1700
+altitude_hold = 1800
+flaperon = 1900
+
 # Config & Setup
 FPS = 60
 SCREEN_WIDTH = 780
@@ -54,10 +70,10 @@ def setup_check():
                 setup += 1
 
         if pygame.joystick.get_count() == 0:
-            #for event in pygame.event.get():
-            #    if event.type == pygame.JOYDEVICEADDED:
-            #        joy = pygame.joystick.Joystick(event.device_index)
-            #        joysticks.append(joy)
+            for event in pygame.event.get():
+                if event.type == pygame.JOYDEVICEADDED:
+                    joy = pygame.joystick.Joystick(event.device_index)
+                    joysticks.append(joy)
 
             if pygame.joystick.get_count() > 0:
                 print("Joystick found")
@@ -186,17 +202,6 @@ def draw_z_arrow():
     scr_z_arrow_rotated_rect = scr_z_arrow_rotated.get_rect(center=(SCREEN_WIDTH / 10, SCREEN_HEIGHT / 2))
     screen.blit(scr_z_arrow_rotated, scr_z_arrow_rotated_rect.topleft)
 
-# modes
-arm = 1100
-failsafe = 1200
-# = 1300
-# = 1400
-manual = 1500
-auto_trim = 1600
-auto_launch = 1700
-altitude_hold = 1800
-flaperon = 1900
-
 X_Axis = 1500
 Y_Axis = 1500
 Slider_Axis = 1500
@@ -245,14 +250,13 @@ def Send_Data():
         arduino.flush()
     else: draw_text('ARDUINO NOT FOUND', font, pygame.Color('red'), SCREEN_WIDTH * 0.37, SCREEN_HEIGHT * 0.95)
 
-#this
+#COMMENT THIS TO TEST THE WORK-IN-PROGRESS FEATURE:
 setup = 1
 
 running = True
 while running:
 
-    #this is experimental, use "setup_check" at your own risk and if you do so, comment the "setup = 1" line above.
-    #setup_check()
+    setup_check()
 
     clock.tick(FPS)
 
@@ -284,31 +288,31 @@ while running:
             if joystick.get_button(1): MODE = flaperon
             if joystick.get_button(9): MODE = auto_launch
 
-            # Hat Switch / Camera Control
-            Cam_X = 1500
-            Cam_Y = 1500
-            Cam_Vel = -50 #-500 to 500
-            if joystick.get_hat(0) == (1, 0):
-                Cam_X = 1500 + Cam_Vel #right
-            if joystick.get_hat(0) == (-1, 0):
-                Cam_X = 1500 - Cam_Vel #left
-            if joystick.get_hat(0) == (0, 1):
-                Cam_Y = 1500 + Cam_Vel #up
-            if joystick.get_hat(0) == (0, -1):
-                Cam_Y = 1500 - Cam_Vel #down
+            if camera_control_enabled == True:
+                # Hat Switch / Camera Control
+                Cam_X = 1500
+                Cam_Y = 1500
+                if joystick.get_hat(0) == (1, 0):
+                    Cam_X = 1500 + Cam_Vel #right
+                if joystick.get_hat(0) == (-1, 0):
+                    Cam_X = 1500 - Cam_Vel #left
+                if joystick.get_hat(0) == (0, 1):
+                    Cam_Y = 1500 + Cam_Vel #up
+                if joystick.get_hat(0) == (0, -1):
+                    Cam_Y = 1500 - Cam_Vel #down
 
-            if joystick.get_hat(0) == (1, -1):
-                Cam_X = 1500 + Cam_Vel # right
-                Cam_Y = 1500 - Cam_Vel # down
-            if joystick.get_hat(0) == (1, 1):
-                Cam_X = 1500 + Cam_Vel # right
-                Cam_Y = 1500 + Cam_Vel # up
-            if joystick.get_hat(0) == (-1, -1):
-                Cam_X = 1500 - Cam_Vel  # left
-                Cam_Y = 1500 - Cam_Vel  # down
-            if joystick.get_hat(0) == (-1, 1):
-                Cam_X = 1500 - Cam_Vel # left
-                Cam_Y = 1500 + Cam_Vel # up
+                if joystick.get_hat(0) == (1, -1):
+                    Cam_X = 1500 + Cam_Vel # right
+                    Cam_Y = 1500 - Cam_Vel # down
+                if joystick.get_hat(0) == (1, 1):
+                    Cam_X = 1500 + Cam_Vel # right
+                    Cam_Y = 1500 + Cam_Vel # up
+                if joystick.get_hat(0) == (-1, -1):
+                    Cam_X = 1500 - Cam_Vel  # left
+                    Cam_Y = 1500 - Cam_Vel  # down
+                if joystick.get_hat(0) == (-1, 1):
+                    Cam_X = 1500 - Cam_Vel # left
+                    Cam_Y = 1500 + Cam_Vel # up
 
             # Screen Axes
             scr_x = (SCREEN_WIDTH / 2) + joystick.get_axis(0) * (SCREEN_WIDTH / joy_area)
